@@ -4,6 +4,7 @@ import AuthPage from '../components/AuthPage'
 import AddEntry from '../components/AddEntry'
 import EntryDetail from '../components/EntryDetail'
 import StarRating from '../components/StarRating'
+import CigarIcon from '../components/CigarIcon'
 import Head from 'next/head'
 
 export default function Home() {
@@ -45,7 +46,7 @@ export default function Home() {
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
       <div style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: '48px', marginBottom: '16px' }}>🚬</div>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}><CigarIcon size={120} /></div>
         <div style={{ color: 'var(--muted)', fontFamily: "'Playfair Display', serif" }}>Loading...</div>
       </div>
     </div>
@@ -88,7 +89,7 @@ export default function Home() {
             <div style={{ padding: '0 16px 100px' }}>
               {entries.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--muted)' }}>
-                  <div style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.4 }}>🚬</div>
+                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px', opacity: 0.4 }}><CigarIcon size={140} /></div>
                   <div style={{ fontFamily: "'Playfair Display', serif", fontSize: '18px', color: 'var(--cream)', marginBottom: '8px' }}>No entries yet</div>
                   <div style={{ fontSize: '14px' }}>Tap + to log your first cigar</div>
                 </div>
@@ -98,7 +99,7 @@ export default function Home() {
                   <div style={{ width: '54px', height: '54px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, background: '#3d2518', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     {entry.image_url
                       ? <img src={entry.image_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      : <span style={{ fontSize: '22px' }}>🚬</span>}
+                      : <CigarIcon size={80} />}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontFamily: "'Playfair Display', serif", fontSize: '16px', color: 'var(--cream)', fontWeight: '600', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
