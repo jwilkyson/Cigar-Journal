@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
+import CigarIcon from './CigarIcon'
 
 export default function AuthPage() {
   const [email, setEmail] = useState('')
@@ -27,7 +28,7 @@ export default function AuthPage() {
       <div style={{ width: '100%', maxWidth: '400px' }}>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <div style={{ fontSize: '48px', marginBottom: '12px' }}>🚬</div>
+          <div style={{ marginBottom: '12px', display: 'flex', justifyContent: 'center' }}><CigarIcon size={120} /></div>
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '32px', color: 'var(--cream)', fontWeight: '700', marginBottom: '6px' }}>
             Cigar Journal
           </h1>
