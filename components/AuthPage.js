@@ -15,37 +15,23 @@ export default function AuthPage() {
     setStatus('')
 
     try {
-      const res = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode, email, password })
-      })
-
-      const data = await res.json()
-
-      if (data.error) {
-        setStatus(data.error)
-        setLoading(false)
-        return
-      }
-
+      let result
       if (mode === 'signup') {
-        if (data.session) {
-          await supabase.auth.setSession({
-            access_token: data.session.access_token,
-            refresh_token: data.session.refresh_token,
-          })
-        } else {
-          setStatus('Account created! Check your email for a confirmation link, then sign in.')
-        }
+        result = await supabase.auth.signUp({ email, password })
       } else {
-        await supabase.auth.setSession({
-          access_token: data.session.access_token,
-          refresh_token: data.session.refresh_token,
-        })
+        result = await supabase.auth.signInWithPassword({ email, password })
       }
+
+      const { data, error } = result
+
+      if (error) {
+        setStatus(error.message)
+      } else if (mode === 'signup' && !data.session) {
+        setStatus('Account created! Check your email to confirm, then sign in.')
+      }
+      // If session exists, the onAuthStateChange in index.js will handle redirect
     } catch (err) {
-      setStatus('Connection error: ' + err.message)
+      setStatus('Error: ' + err.message)
     }
 
     setLoading(false)
