@@ -1,6 +1,11 @@
 import { useState } from 'react'
-import { supabase } from '../lib/supabaseClient'
+import { createClient } from '@supabase/supabase-js'
 import CigarIcon from './CigarIcon'
+
+const supabase = createClient(
+  'https://tjzarxkwkyxhwgaooss.supabase.co',
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+)
 
 export default function AuthPage() {
   const [email, setEmail] = useState('')
@@ -23,17 +28,14 @@ export default function AuthPage() {
       }
 
       const { data, error } = result
-
       if (error) {
         setStatus(error.message)
       } else if (mode === 'signup' && !data.session) {
         setStatus('Account created! Check your email to confirm, then sign in.')
       }
-      // If session exists, the onAuthStateChange in index.js will handle redirect
     } catch (err) {
       setStatus('Error: ' + err.message)
     }
-
     setLoading(false)
   }
 
@@ -44,9 +46,7 @@ export default function AuthPage() {
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
             <CigarIcon size={120} />
           </div>
-          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '32px', color: 'var(--cream)', fontWeight: '700', marginBottom: '6px' }}>
-            Cigar Journal
-          </h1>
+          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '32px', color: 'var(--cream)', fontWeight: '700', marginBottom: '6px' }}>Cigar Journal</h1>
           <div style={{ width: '60px', height: '2px', background: 'linear-gradient(90deg, transparent, var(--gold), transparent)', margin: '0 auto 12px' }} />
           <p style={{ color: 'var(--muted)', fontSize: '15px' }}>Your personal cigar tasting log</p>
         </div>
