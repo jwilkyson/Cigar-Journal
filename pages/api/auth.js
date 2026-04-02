@@ -1,35 +1,45 @@
-import { createClient } from '@supabase/supabase-js'
-
 const SUPABASE_URL = 'https://tjzarxkwkyxhwgaooss.supabase.co'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   const { mode, email, password } = req.body
-
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
   if (!supabaseKey) {
-    return res.status(500).json({ error: 'Missing Supabase key in environment' })
+    return res.status(500).json({ error: 'Missing Supabase anon key' })
   }
 
-  const supabase = createClient(SUPABASE_URL, supabaseKey)
+  const endpoint = mode === 'signup'
+    ? `${SUPABASE_URL}/auth/v1/signup`
+    : `${SUPABASE_URL}/auth/v1/token?grant_type=password`
 
   try {
-    if (mode === 'signup') {
-      const { data, error } = await supabase.auth.signUp({ email, password })
-      if (error) return res.status(400).json({ error: error.message })
-      return res.status(200).json({ user: data.user, session: data.session })
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+      },
+      body: JSON.stringify({ email, password }),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      return res.status(400).json({ error: data.error_description || data.msg || data.error || 'Auth failed' })
     }
 
-    if (mode === 'login') {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) return res.status(400).json({ error: error.message })
-      return res.status(200).json({ user: data.user, session: data.session })
-    }
-
-    return res.status(400).json({ error: 'Invalid mode' })
+    return res.status(200).json({
+      user: data.user,
+      session: {
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+      }
+    })
   } catch (err) {
-    console.error('Auth error:', err)
-    return res.status(500).json({ error: err.message })
+    console.error('Auth fetch error:', err)
+    return res.status(500).json({ error: 'Server error: ' + err.message })
   }
 }
