@@ -11,8 +11,10 @@ export default function Home() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [entries, setEntries] = useState([])
-  const [view, setView] = useState('journal') // journal | add | detail
+  const [view, setView] = useState('journal')
   const [selectedEntry, setSelectedEntry] = useState(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [showSearch, setShowSearch] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -42,6 +44,19 @@ export default function Home() {
     setEntries([])
     setView('journal')
   }
+
+  const filteredEntries = entries.filter(e => {
+    if (!searchQuery.trim()) return true
+    const q = searchQuery.toLowerCase()
+    return (
+      (e.name || '').toLowerCase().includes(q) ||
+      (e.brand || '').toLowerCase().includes(q) ||
+      (e.origin || '').toLowerCase().includes(q) ||
+      (e.wrapper || '').toLowerCase().includes(q) ||
+      (e.strength || '').toLowerCase().includes(q) ||
+      (e.notes || '').toLowerCase().includes(q)
+    )
+  })
 
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
@@ -79,21 +94,45 @@ export default function Home() {
             {/* Header */}
             <div style={{ textAlign: 'center', padding: '28px 20px 16px', position: 'relative' }}>
               <button onClick={handleSignOut} style={{ position: 'absolute', right: '16px', top: '28px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--muted)', borderRadius: '6px', padding: '6px 10px', cursor: 'pointer', fontSize: '12px' }}>Sign Out</button>
+              <button onClick={() => setShowSearch(!showSearch)} style={{ position: 'absolute', left: '16px', top: '28px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--muted)', borderRadius: '6px', padding: '6px 10px', cursor: 'pointer', fontSize: '16px' }}>🔍</button>
               <div style={{ fontSize: '11px', letterSpacing: '0.25em', color: 'var(--muted)', textTransform: 'uppercase', marginBottom: '6px' }}>Personal Collection</div>
               <h1 style={{ margin: 0, fontFamily: "'Playfair Display', serif", fontSize: '32px', color: 'var(--cream)', fontWeight: '700' }}>Cigar Journal</h1>
               <div style={{ width: '60px', height: '2px', background: 'linear-gradient(90deg, transparent, var(--gold), transparent)', margin: '12px auto' }} />
               <div style={{ fontSize: '13px', color: 'var(--muted)' }}>{entries.length} {entries.length === 1 ? 'entry' : 'entries'}</div>
             </div>
 
+            {/* Search Bar */}
+            {showSearch && (
+              <div style={{ padding: '0 16px 12px' }}>
+                <input
+                  autoFocus
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder="Search by name, brand, origin, notes..."
+                  style={{ width: '100%' }}
+                />
+                {searchQuery && (
+                  <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '6px', paddingLeft: '4px' }}>
+                    {filteredEntries.length} result{filteredEntries.length !== 1 ? 's' : ''}
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Entries */}
             <div style={{ padding: '0 16px 100px' }}>
-              {entries.length === 0 ? (
+              {filteredEntries.length === 0 && entries.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--muted)' }}>
                   <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px', opacity: 0.4 }}><CigarIcon size={140} /></div>
                   <div style={{ fontFamily: "'Playfair Display', serif", fontSize: '18px', color: 'var(--cream)', marginBottom: '8px' }}>No entries yet</div>
                   <div style={{ fontSize: '14px' }}>Tap + to log your first cigar</div>
                 </div>
-              ) : entries.map(entry => (
+              ) : filteredEntries.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--muted)' }}>
+                  <div style={{ fontSize: '32px', marginBottom: '12px' }}>🔍</div>
+                  <div style={{ fontFamily: "'Playfair Display', serif", fontSize: '16px', color: 'var(--cream)' }}>No results for "{searchQuery}"</div>
+                </div>
+              ) : filteredEntries.map(entry => (
                 <div key={entry.id} className="fade-in" onClick={() => { setSelectedEntry(entry); setView('detail') }}
                   style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', marginBottom: '12px', display: 'flex', gap: '14px', alignItems: 'center', cursor: 'pointer' }}>
                   <div style={{ width: '54px', height: '54px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, background: '#3d2518', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -140,6 +179,7 @@ export default function Home() {
             entry={selectedEntry}
             onBack={() => setView('journal')}
             onDeleted={() => { fetchEntries(); setView('journal') }}
+            onUpdated={(updated) => { fetchEntries(); setSelectedEntry(updated); setView('journal') }}
           />
         )}
       </div>
