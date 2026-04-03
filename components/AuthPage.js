@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import CigarIcon from './CigarIcon'
 
 const supabase = createClient(
-  'https://tjzarxkwkyxhwgaooss.supabase.co',
+  'https://tjzarxkwkyyxhwgaooss.supabase.co',
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
