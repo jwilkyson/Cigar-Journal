@@ -1,4 +1,4 @@
-const SUPABASE_URL = 'https://tjzarxkwkyxhwgaooss.supabase.co'
+const SUPABASE_URL = 'https://tjzarxkwkyyxhwgaooss.supabase.co'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
