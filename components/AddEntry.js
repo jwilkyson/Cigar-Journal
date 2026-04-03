@@ -109,9 +109,10 @@ export default function AddEntry({ user, onSaved, onBack }) {
       } catch { /* continue without image */ }
     }
 
+    const { confidence, ...formData } = form
     const { error } = await supabase.from('journal_entries').insert([{
       user_id: user.id,
-      ...form,
+      ...formData,
       image_url,
     }])
 
